@@ -19,7 +19,7 @@ set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CompFabA4_BINARY_DIR}/lib )
 find_package(Eigen3 REQUIRED)
 
 # libigl
-set(LIBIGL_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/../../libigl/include CACHE FILEPATH "Root include directory for libigl")
+set(LIBIGL_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/../ThirdParty/libigl/include CACHE FILEPATH "Root include directory for libigl")
 option(LIBIGL_USE_STATIC_LIBRARY "Use libigl as static library" OFF)
 option(LIBIGL_WITH_ANTTWEAKBAR       "Use AntTweakBar"    OFF)
 option(LIBIGL_WITH_CGAL              "Use CGAL"           OFF)

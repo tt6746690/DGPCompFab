@@ -28,7 +28,7 @@ public:
         m_qDotDofs[3] = qDotDOFList[3];
     }
     
-    //This function computes the value of the shape function associated with the vertex Vertex.
+    //This function computes the value of the shape function assocd .sciated with the vertex Vertex.
     template<unsigned int Vertex>
     inline double phi(double *x) {
         assert(Vertex >= 0);
@@ -71,6 +71,8 @@ public:
     }
     
     //Shape function matrix at point x
+    //      shape functions are simply barycentric coordinate of a tet
+    //      node-wise ordering
     inline MatrixJ N(double *x) {
         
         MatrixJ output;

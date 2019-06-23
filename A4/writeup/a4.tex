@@ -1,0 +1,190 @@
+\documentclass[11pt]{article}
+\input{\string~/.macros}
+\usepackage{hyperref}
+\usepackage[a4paper, total={6in, 8in}, margin=0.7in]{geometry}
+\newcommand{\bheading}[1]{\textbf{(#1)}}
+
+\setcounter{MaxMatrixCols}{20}
+
+\begin{document}
+
+
+\section*{Part A: Shape Functions for Linear Tetrahedral Finite Elements}
+
+\subsection*{Problem 1}
+Start with the continuous definition of the potential energy for a linearly elastic object given by:
+\[
+    E=\frac{1} {2}\int_\Omega \epsilon\colon C \colon\epsilon d\Omega    
+\]
+For linear elasticity we can rewrite this using the
+\[
+    C=\frac{Y}{(1+\mu)\cdot(1-2\mu)}
+    \begin{pmatrix} 
+        1-\mu & \mu & \mu & 0 &0 &0 \\
+        \mu & 1-\mu & \mu & 0 &0 &0 \\
+        \mu & \mu & 1-\mu & 0 & 0 &0 \\ 
+        0 & 0 & 0 & \frac{1}{2}(1-2\mu) &0 &0 \\
+        0 & & 0 & 0 &\frac{1} {2}(1-2\mu) &0 \\
+        0 & 0 & 0 & 0 &0 &\frac{1}{2}(1-2\mu) 
+    \end{pmatrix}    
+\]
+\[
+    \epsilon= 
+    \begin{pmatrix}
+        \epsilon_{xx} & \epsilon_{yy} & \epsilon_{zz} &\epsilon_{yz} & \epsilon_{xy} & \epsilon_{xx}
+    \end{pmatrix}^T 
+    \quad \quad \text{and} \quad \quad
+    \epsilon_{ij} =
+    \frac{1}{2}\left(\frac{\partial \mathbf{u}_i}{\partial\mathbf{x}_j}+\frac{\partial \mathbf{u}_j}{\partial \mathbf{x}_i}\right) 
+\]
+Here $\mathbf{u} \in \R^3$ is the displacement at a point $\mathbf{x}$ in space. $Y$ is the stiffness of the material (Young's modulus) and $\mu$ is the poisson's ratio which determines how incompressible a material is. Start by rewriting $E$ using the matrix $C$ and the vector definition of $\epsilon$.
+\[
+    E = \frac{1}{2} \int_{\Omega} \epsilon^t C \epsilon d\Omega    
+\]
+  
+ 
+\subsection*{Problem 2}
+
+Next you will discretize $E$ using linear finite element shape functions on a tetrahedron. The shape functions for a linear, tetrahedral element are the barycentric coordinates of each tetrahedron \href{https://en.wikipedia.org/wiki/Barycentric_coordinate_system}{the formula here} Let's use barycentric coordinates to represent the displacement of all points inside a tetrahedron: $\mathbf{u(\mathbf{x})} = \mathbf{u}_1\lambda_1 +\mathbf{u}_2\lambda_2+\mathbf{u}_3\lambda_3+\mathbf{u}_4\lambda_4$, where $\mathbf{u}_i$ is the displacement of the $i^{th}$ vertex and $\lambda_i$ is the $i^{th}$ barycentric coordinate. You should be able to build a discrete version of $\epsilon$ using this formula. Try to express your formula in the form $B\mathbf{u}$, where $B$ is a matrix and $\mathbf{u}$ is the $12\times 1$ vector of stacked nodal displacements: $\begin{pmatrix} u_{1x} & u_{1y} &  u_{1z} & \cdots & u_{4x} & u_{4y} & u_{4z} \end{pmatrix}^T$
+$ $\\
+Consider a linear system represent coordinate transformation from barycentric coordinate $(\lambda_1,\lambda_2,\lambda_3,\lambda_4)$ to cartesian coordinate $(x,y,z)$ for a point $\bx$ inside an element
+\[
+    \begin{pmatrix}
+        1 \\
+        x \\
+        y \\
+        z \\
+    \end{pmatrix}    
+    = 
+    \begin{pmatrix}
+        1 & 1 & 1 & 1 \\
+        x_1 & x_2 & x_3 & x_4 \\
+        y_1 & y_2 & y_3 & y_4 \\
+        z_1 & z_2 & z_3 & z_4 \\
+    \end{pmatrix}
+    \begin{pmatrix}
+        \lambda_1 \\
+        \lambda_2 \\
+        \lambda_3 \\
+        \lambda_4
+    \end{pmatrix}
+\]
+We can derive the inverse transformation by inverting the matrix
+\[
+    \begin{pmatrix}
+        \lambda_1 \\
+        \lambda_2 \\
+        \lambda_3 \\
+        \lambda_4
+    \end{pmatrix}
+    = 
+    \frac{1}{6V}
+    \begin{pmatrix}
+        6V_1 & a_1 & b_1 & c_1 \\
+        6V_2 & a_2 & b_2 & c_2 \\
+        6V_3 & a_3 & b_3 & c_3 \\
+        6V_4 & a_4 & b_4 & c_4 \\
+    \end{pmatrix}
+    \begin{pmatrix}
+        1 \\
+        x \\
+        y \\
+        z \\
+    \end{pmatrix}    
+\]
+From these relationships, we can derive partial derivatives with respect to the coordinates 
+\[
+    \frac{\partial \lambda_i}{\partial x} = \frac{1}{6V} a_i 
+    \quad \quad 
+    \frac{\partial \lambda_i}{\partial y} = \frac{1}{6V} b_i
+    \quad \quad
+    \frac{\partial \lambda_i}{\partial z} = \frac{1}{6V} c_i 
+\]
+We have the following formula for computing partial derivatives of displace with respect to nodal displacement at the vertices. As an example, we can compute $\textstyle \frac{\partial \bu_x}{\partial x}$
+\begin{align*}
+    \frac{\partial \bu_x}{\partial x}
+    &=    u_{1x} \frac{\partial \lambda_1}{\partial x} 
+        + u_{2x} \frac{\partial \lambda_2}{\partial x}
+        + u_{3x} \frac{\partial \lambda_3}{\partial x}
+        + u_{4x} \frac{\partial \lambda_4}{\partial x} \\
+    &= \frac{1}{6V} \p{
+        a_1 u_{1x} + a_2 u_{2x} + a_3 u_{3x} + a_4 u_{4x}
+    }    
+\end{align*}
+% \[
+%     \epsilon
+%     = 
+%     \begin{pmatrix}
+%         \frac{\partial \bu_x}{\partial \bx_x} \\
+%         \frac{\partial \bu_y}{\partial \bx_y} \\
+%         \frac{\partial \bu_z}{\partial \bx_z} \\
+%         \frac{1}{2} \p{ \frac{\partial \bu_y }{\partial \bx_z} + \frac{\partial \bu_z}{\partial \bx_y} } \\
+%         \frac{1}{2} \p{ \frac{\partial \bu_x }{\partial \bx_z} + \frac{\partial \bu_z}{\partial \bx_x} } \\
+%         \frac{1}{2} \p{ \frac{\partial \bu_x }{\partial \bx_y} + \frac{\partial \bu_y}{\partial \bx_x} }
+%     \end{pmatrix}
+%     =
+%     B
+%     \begin{pmatrix}
+%         u_{1x} \\
+%         u_{1y} \\ 
+%         u_{1z} \\
+%         u_{2x} \\
+%         u_{2y} \\ 
+%         u_{2z} \\
+%         u_{3x} \\
+%         u_{3y} \\ 
+%         u_{3z} \\
+%         u_{4x} \\
+%         u_{4y} \\ 
+%         u_{4z} \\
+%     \end{pmatrix}
+% \]
+We can find $B$ such that $\epsilon = B\bu$
+where 
+\[
+    B = 
+    \frac{1}{6V}
+    \begin{pmatrix}
+        a_1 & 0 & 0 & a_2 & 0 & 0 & a_3 & 0 & 0 & a_4 & 0 & 0 \\
+        0 & b_1 & 0 & 0 & b_2 & 0 & 0 & b_3 & 0 & 0 & b_4 & 0 \\
+        0 & 0 & c_1 & 0 & 0 & c_2 & 0 & 0 & c_3 & 0 & 0 & c_4 \\
+        0 & \frac{1}{2} b_1 & \frac{1}{2} c_1 & 0 & \frac{1}{2} b_2 & \frac{1}{2} c_2 & 0 & \frac{1}{2} b_3 & \frac{1}{2}c_3 & 0 & \frac{1}{2} b_4 &\frac{1}{2} c_4 \\
+        \frac{1}{2} a_1 & 0 & \frac{1}{2} c_1 & \frac{1}{2} a_2 & 0 & \frac{1}{2} c_2 & \frac{1}{2} a_3 & 0 & \frac{1}{2} c_3 & \frac{1}{2} a_4 & 0 & \frac{1}{2} c_4 \\
+        \frac{1}{2}a_1 & \frac{1}{2}b_1 & 0 & \frac{1}{2}a_2 & \frac{1}{2}b_2 & 0 & \frac{1}{2}a_3 & \frac{1}{2}b_3 & 0 & \frac{1}{2}a_4 & \frac{1}{2}b_4 & 0 \\
+    \end{pmatrix}  
+\]
+Therefore we can express potential energy for one element as follows
+\begin{align*}
+    E 
+    &= \frac{1}{2} \int_{\Omega} \epsilon^t C \epsilon d\Omega \\
+    &= \frac{1}{2} \int_{\Omega} \bu^t B^t C B \bu d\Omega \\
+    &= \frac{1}{2}\bu VB^t C B \bu
+\end{align*}
+where we assume material dependent variables, i.e. $Y$ and $\mu$, are constant inside an element in last step
+
+ 
+
+\section*{Part B: Implement Linear Shape Functions}
+
+\begin{enumerate}
+    \item Open '{SRC\_DIRECTORY}/A4/include/ShapeFunctionTetLinearA4.h'.
+    \item  The function \texttt{*double phi(double x) \{ ... \}} returns the value of the linear shape function
+    $\lambda_{VERTEX}$, evaluated at $\mathbf{x}$. Implement this function.
+    \item The function \texttt{*std::array<DataType,3> dphi(double x) \{ ... \}} returns the gradient linear shape function
+    $\nabla\lambda_{VERTEX}$, evaluated at $\mathbf{x}$. Implement this function.
+    \item The function \texttt{*Eigen::Matrix<DataType, 3,3> F(double x, const State \&state)} returns the $3\times3$
+    deformation gradient for a tetrahedral element where $F_{ij}=\frac{\partial \mathbf{u}_i}{\partial \mathbf{X}_j}$. Use \textbf{dphi} to implement this method.
+\end{enumerate}
+
+\section*{Part C: Implement Quadrature and Simulate}
+
+\begin{enumerate}
+    \item Open '{SRC\_DIRECTORY}/A4/include/QuadratureLinearElasticity.h'
+    \item Complete the \textbf{getEnergy} function to return the value of $E$ from Part A.
+    \item Compute the stiffness matrix and the forces from $E$. The forces are the negative gradient of $E$ wrt to
+    the degrees of freedom, $\mathbf{u}$ and the stiffness matrix is the hessian matrix, i.e $K_{ij} = - \frac{\partial^2 E}{\partial \mathbf{u}_i \partial \mathbf{u}_j}$. Derive these terms and complete the \textbf{getGradient} and \textbf{getHessian} functions.
+    \item Run the assignment code which will compute the stress on a test object and plot the result.
+\end{enumerate}
+
+
+\end{document}
